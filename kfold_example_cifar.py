@@ -31,4 +31,4 @@ if __name__ == '__main__':
     waiter_params = {"train_dataset": train_dataset, "get_models": get_models, "get_optimizer": get_optimizer}
 
     job_scheduler = JobScheduler()
-    job_scheduler(waiter, waiter_params)
+    job_scheduler(waiter, waiter_params, parallelize=False)
