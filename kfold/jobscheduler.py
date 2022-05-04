@@ -11,11 +11,10 @@ class JobScheduler(object):
     
     def __call__(self, waiter, waiter_params, parallelize=True):
         if parallelize:
-            processes = []
-            for params in waiter(**waiter_params):
-                p = Process(target=self.job, args=(params,))
+            processes = [Process(target=self.job, args=(params,)) for params in waiter(**waiter_params)]
+            for p in processes:
                 p.start()
-                processes.append(p)
+                
             for p in processes:
                 p.join()
         else:
