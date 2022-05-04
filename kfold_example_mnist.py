@@ -7,14 +7,12 @@ from torch.multiprocessing import set_start_method
 from torchvision.transforms import ToTensor, Resize, Compose
 
 from models import LeNet5
-from kfold import Waiter, JobScheduler
+from kfold import KFold
 
 if __name__ == '__main__':
-    root_dir = os.path.dirname(os.path.abspath(__file__))
     set_start_method('spawn', force=True)
-
-    def get_models():
-        yield LeNet5
+    batch_size = 32
+    root_dir = os.path.dirname(os.path.abspath(__file__))
 
     def get_optimizer(model):
         return Adam(model.parameters(), 1e-3)
@@ -23,8 +21,5 @@ if __name__ == '__main__':
     train_dataset = MNIST(root="./data", train=True, download=True, transform=transforms)
 
     trainer_params = dict({"epochs": 2})
-    waiter = Waiter(['cosine'], CrossEntropyLoss(), root_dir, splits=2, trainer_params = trainer_params)
-    waiter_params = {"train_dataset": train_dataset, "get_models": get_models, "get_optimizer": get_optimizer}
-
-    job_scheduler = JobScheduler()
-    job_scheduler(waiter, waiter_params)
+    kfold = KFold(2, train_dataset, root_dir, CrossEntropyLoss(), batch_size)
+    kfold([LeNet5], ['cosine'], get_optimizer, trainer_params)
