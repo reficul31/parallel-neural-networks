@@ -5,7 +5,9 @@ from torch.utils.data import DataLoader
 from sklearn.model_selection import KFold
 from torch.utils.data import SubsetRandomSampler
 
-from kfold import get_scheduler, Trainer, Tester
+from .utils import get_scheduler
+from .trainer import Trainer
+from .tester import Tester
 
 class Waiter(object):
     def __init__(self, train_dataset, criterion, batch_size, splits):
