@@ -1,4 +1,6 @@
 import os
+import time
+import json
 
 from .jobscheduler import JobScheduler
 from .waiter import Waiter
@@ -29,4 +31,9 @@ class KFold(object):
                 }
                 
                 job_scheduler = JobScheduler()
+                start = time.time()
                 job_scheduler(self.waiter, waiter_params, self.parallelize)
+                end = time.time()
+
+                with open(os.path.join(root_dir, 'time.json'), 'w') as time_file:
+                    time_file.write(json.dumps(dict({'start': start, 'end': end})))
