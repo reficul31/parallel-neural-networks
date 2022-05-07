@@ -6,8 +6,8 @@ from torchvision.datasets import MNIST
 from torch.multiprocessing import set_start_method
 from torchvision.transforms import ToTensor, Resize, Compose
 
-from models import LeNet5
 from kfold import KFold
+from models import LeNet5, AlexNet
 
 if __name__ == '__main__':
     set_start_method('spawn', force=True)
@@ -22,4 +22,4 @@ if __name__ == '__main__':
 
     trainer_params = dict({"epochs": 2})
     kfold = KFold(2, train_dataset, root_dir, CrossEntropyLoss(), batch_size)
-    kfold([LeNet5], ['cosine'], get_optimizer, trainer_params)
+    kfold([LeNet5, AlexNet], ['cosine'], get_optimizer, trainer_params)
