@@ -39,14 +39,14 @@ class DistributedTrainer(object):
         processes = []
         for rank in range(self.num_processes):
             data_loader = DataLoader(dataset, sampler=DistributedSampler(dataset=dataset, num_replicas=self.num_processes, rank=rank))
-            processes.append(Process(target=self.train, args=(model, optimizer, scheduler, data_loader, epochs)))
+            processes.append(Process(target=self.train, args=(rank, model, optimizer, scheduler, data_loader, epochs)))
         
         for p in processes:
             p.start()
         for p in processes:
             p.join()
     
-    def train(self, model, optimizer, scheduler, data_loader, epochs):
+    def train(self, rank, model, optimizer, scheduler, data_loader, epochs):
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         train_loss, times = [], []
 
@@ -71,4 +71,4 @@ class DistributedTrainer(object):
             train_loss.append(np.mean(log_loss))
         
         df = pd.DataFrame({'train_loss': train_loss, 'time': times})
-        df.to_csv(os.path.join(self.root_dir, "train_data.csv"))
+        df.to_csv(os.path.join(self.root_dir, "train_data_{}.csv".format(rank)))
