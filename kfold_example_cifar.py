@@ -7,7 +7,7 @@ from torch.multiprocessing import set_start_method
 from torchvision.transforms import ToTensor, Compose, RandomCrop, RandomHorizontalFlip, Normalize
 
 from models import MobileNet, LeNet, VGG
-from kfold import KFold
+from kfold import AsyncKFold
 
 def get_optimizer(model):
     return Adam(model.parameters(), 1e-3)
@@ -26,5 +26,5 @@ if __name__ == '__main__':
     train_dataset = CIFAR10(root="./data", train=True, download=True, transform=transform_train)
 
     trainer_params = dict({"epochs": 10})
-    kfold = KFold(3, train_dataset, root_dir, CrossEntropyLoss(), batch_size)
+    kfold = AsyncKFold(3, train_dataset, root_dir, CrossEntropyLoss(), batch_size)
     kfold([MobileNet, LeNet, VGG], ['cosine', 'warm'], get_optimizer, trainer_params)
