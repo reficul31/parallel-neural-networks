@@ -57,8 +57,9 @@ if __name__ == '__main__':
     testloader = DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=1)
 
     net = AlexNet().to(device)
-    server = Server(net)
-    server.run()
+    if int(sys.argv[1]) == 0:
+        server = Server(net)
+        server.run()
     
     optimizer = Hogwild(net.parameters(), lr=lr, n_push=num_push, n_pull=num_pull, model=net)
     scheduler = ReduceLROnPlateau(optimizer, patience=1, verbose=True, min_lr=1e-3)
