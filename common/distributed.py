@@ -29,7 +29,9 @@ class DistributedTester(object):
 
 class DistributedTrainer(object):
     def __init__(self, num_processes, criterion, root_dir, batch_size):
-        self.trainer = Trainer(criterion, root_dir, batch_size, save_latest=False)
+        self.criterion = criterion
+        self.root_dir = root_dir
+        self.batch_size = batch_size
         self.num_processes = num_processes
     
     def __call__(self, model, dataset, optimizer, scheduler, epochs=100, save_checkpoint_frequency=20, print_frequency=15):
@@ -38,9 +40,32 @@ class DistributedTrainer(object):
         for rank in range(self.num_processes):
             data_loader = DataLoader(dataset, sampler=DistributedSampler(dataset=dataset, num_replicas=self.num_processes, rank=rank))
 
-            processes.append(Process(target=self.trainer, args=(rank, model, optimizer, scheduler, data_loader, epochs, save_checkpoint_frequency, print_frequency)))
+            processes.append(Process(target=self.train, args=(rank, model, optimizer, scheduler, data_loader, epochs, save_checkpoint_frequency, print_frequency)))
         
         for p in processes:
             p.start()
         for p in processes:
             p.join()
+    
+    def train(self, model, optimizer, scheduler, data_loader, epochs):
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        train_loss = []
+
+        model.train()
+        for _ in range(epochs):
+            _ = len(data_loader.dataset) / self.batch_size
+            
+            log_loss = []
+            for _, (X, y) in enumerate(data_loader):
+                X, y = X.to(device), y.to(device)
+                outputs = model(X)
+                loss = self.criterion(outputs, y)
+
+                with torch.set_grad_enabled(True):
+                    optimizer.zero_grad()
+                    loss.backward()
+                    optimizer.step()
+                    scheduler.step()
+
+                log_loss.append(loss.item())
+            train_loss.append(np.mean(log_loss))
