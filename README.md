@@ -68,19 +68,10 @@ The serial KFold took a total time of 165 minutes.
 
 As we see our parallel KFold implementation has a 2.72x speedup for cosine and warm schedulers.
 
-<br>
 
----
-<br>
-
-<img src="./asset/class-accuracies.png" width="800px" height ="550px"  >
+<img src="./asset/class-accuracies.png" width="800px" height ="650px"  >
 In the above graph we have shown the difference between the serial and parallel implementations of diferent models with different schedulers. 
 
-
-<br>
-
----
-<br>
 
 ### Accuracy
 
