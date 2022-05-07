@@ -12,7 +12,7 @@ from torchvision.transforms import Compose, ToTensor, Normalize
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from sklearn.metrics import accuracy_score
 
-from models import AlexNet
+from models import VGG
 from hogwild import Hogwild, Server
 
 epochs = 10
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=1)
     testloader = DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=1)
 
-    net = AlexNet().to(device)
+    net = VGG().to(device)
     if int(sys.argv[1]) == 0:
         server = Server(net)
         server.run()
