@@ -2,10 +2,10 @@ import os
 import time
 import torch
 import numpy as np
-from torch.multiprocessing import Process
+import pandas as pd
 
+from torch.multiprocessing import Process
 from torch.utils.data import DataLoader, DistributedSampler
-from .trainer import Trainer
 
 class DistributedTester(object):
     def __init__(self, data_loader, root_dir, num_classes = 10):
@@ -34,13 +34,12 @@ class DistributedTrainer(object):
         self.batch_size = batch_size
         self.num_processes = num_processes
     
-    def __call__(self, model, dataset, optimizer, scheduler, epochs=100, save_checkpoint_frequency=20, print_frequency=15):
+    def __call__(self, model, dataset, optimizer, scheduler, epochs=100):
         model.share_memory()
         processes = []
         for rank in range(self.num_processes):
             data_loader = DataLoader(dataset, sampler=DistributedSampler(dataset=dataset, num_replicas=self.num_processes, rank=rank))
-
-            processes.append(Process(target=self.train, args=(rank, model, optimizer, scheduler, data_loader, epochs, save_checkpoint_frequency, print_frequency)))
+            processes.append(Process(target=self.train, args=(model, optimizer, scheduler, data_loader, epochs)))
         
         for p in processes:
             p.start()
@@ -49,7 +48,7 @@ class DistributedTrainer(object):
     
     def train(self, model, optimizer, scheduler, data_loader, epochs):
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        train_loss = []
+        train_loss, times = [], []
 
         model.train()
         for _ in range(epochs):
@@ -68,4 +67,8 @@ class DistributedTrainer(object):
                     scheduler.step()
 
                 log_loss.append(loss.item())
+            times.append(time.time())
             train_loss.append(np.mean(log_loss))
+        
+        df = pd.DataFrame({'train_loss': train_loss, 'time': times})
+        df.to_csv(os.path.join(self.root_dir, "train_data.csv"))

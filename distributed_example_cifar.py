@@ -21,6 +21,8 @@ if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = VGG().to(device)
 
+    optimizer = Adam(model.parameters(), 1e-3)
+    scheduler = get_scheduler('cosine', optimizer)
     transform_train = Compose([
         RandomCrop(32, padding=4),
         RandomHorizontalFlip(),
@@ -35,7 +37,7 @@ if __name__ == '__main__':
     test_dataset = CIFAR10(root="./data", train=False, download=True, transform=transform_test)
 
     trainer = DistributedTrainer(5, CrossEntropyLoss(), root_dir, batch_size)
-    trainer(model, train_dataset, Adam(model.parameters(), 1e-3), get_scheduler('cosine'), epochs=100, save_checkpoint_frequency=100)
+    trainer(model, train_dataset, optimizer, scheduler, epochs=10)
 
     tester = DistributedTester(DataLoader(test_dataset, batch_size=batch_size, shuffle=True), root_dir)
     tester(model)
