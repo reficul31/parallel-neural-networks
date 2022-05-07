@@ -42,7 +42,7 @@ class Waiter(object):
                 **trainer_params
             }
 
-            tester = tester = Tester(test_loader, root_dir)
+            tester = Tester(test_loader, root_dir)
             tester_args = {
                 "fold": fold,
                 "model": model
