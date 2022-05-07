@@ -38,16 +38,16 @@ def evaluate(net, testloader):
             _, predicted = torch.max(outputs, 1)
             test_loss += F.cross_entropy(outputs, labels).item()
 
-    test_accuracy = accuracy_score(predicted, labels)
+    test_accuracy = accuracy_score(predicted.cpu().detach().numpy(), labels.cpu().detach().numpy())
     return test_loss, test_accuracy
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        raise Exception("Need arguments for server and worker")
+    if len(sys.argv) != 3:
+        raise Exception("Need 3 arguments for server and worker")
     
     os.environ['MASTER_ADDR'] = 'localhost'
     os.environ['MASTER_PORT'] = '29500'
-    dist.init_process_group('gloo', rank=int(sys.argv[1]), world_size=3)
+    dist.init_process_group('gloo', rank=int(sys.argv[1]), world_size=int(sys.argv[2]))
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     trainset = CIFAR10(root='./data', train=True, download=True, transform=transform)
@@ -79,7 +79,7 @@ if __name__ == '__main__':
             optimizer.step()
 
             _, predicted = torch.max(outputs, 1)
-            accuracy = accuracy_score(predicted, labels)
+            accuracy = accuracy_score(predicted.cpu().detach().numpy(), labels.cpu().detach().numpy())
 
             log_obj = {
                 'timestamp': datetime.now(),
@@ -87,16 +87,8 @@ if __name__ == '__main__':
                 'training_loss': loss.item(),
                 'training_accuracy': accuracy,
             }
-
             
             log_obj['test_loss'], log_obj['test_accuracy']= evaluate(net, testloader)
-            print("Timestamp: {timestamp} | "
-                    "Iteration: {iteration:6} | "
-                    "Loss: {training_loss:6.4f} | "
-                    "Accuracy : {training_accuracy:6.4f} | "
-                    "Test Loss: {test_loss:6.4f} | "
-                    "Test Accuracy: {test_accuracy:6.4f}".format(**log_obj))
-
             logs.append(log_obj)
                 
         val_loss, val_accuracy = evaluate(net, testloader, verbose=True)
