@@ -6,8 +6,7 @@ from sklearn.model_selection import KFold
 from torch.utils.data import SubsetRandomSampler
 
 from .utils import get_scheduler
-from .trainer import Trainer
-from .tester import Tester
+from common import Tester, Trainer
 
 class Waiter(object):
     def __init__(self, train_dataset, criterion, batch_size, splits):
