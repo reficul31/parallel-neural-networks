@@ -1,6 +1,6 @@
 import os
+import sys
 import torch
-import argparse
 import pandas as pd
 import torch.nn.functional as F
 import torch.distributed as dist
@@ -42,6 +42,13 @@ def evaluate(net, testloader):
     return test_loss, test_accuracy
 
 if __name__ == '__main__':
+    if len(sys.argv) != 2:
+        raise Exception("Need arguments for server and worker")
+    
+    
+    os.environ['MASTER_ADDR'] = 'localhost'
+    os.environ['MASTER_PORT'] = '29500'
+    dist.init_process_group('tcp', rank=int(sys.argv[1]), world_size=3)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     trainset = CIFAR10(root='./data', train=True, download=True, transform=transform)
