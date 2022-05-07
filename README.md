@@ -58,7 +58,7 @@ The serial KFold took a total time of 165 minutes.
 
 ![Parallel CPU utilization](./asset/CPU-Usage-Parallel.png)
 
-** Our parallel implementation was able to maximize CPU utilization resulting in almost 100% CPU utilization decreasing the execution time from 165 minutes to just 80 minutes **
+<b> Our parallel implementation was able to maximize CPU utilization resulting in almost 100% CPU utilization decreasing the execution time from 165 minutes to just 80 minutes </b>
 
 
 
