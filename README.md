@@ -1,7 +1,6 @@
 # Parallel Neural Networks
 
 ## Description of project
----
 
 Stochastic Gradient Descent (SGD) is a commonly used optimization approach. A few
 sophisticated strategies, including variance reduction, stochastic coordinate sampling, and
@@ -17,20 +16,18 @@ Cross-Validation or SGD. We will implement asynchronous stochastic gradient desc
 method and benchmark their performance on different networks and datasets
 
 ## Description of Repository
----
 
 In this repository we have included AsyncKFold and Asynschornous Stochastic Gradient Descent using HOGWILD menthod in pytorch. 
 
 
 ## Executing the code
----
 
 ```
 
 ```
 
 ## Testing on example code
----
+
 - ### Testing Asynchornous KFold on MNIST dataset
 
 ```
@@ -43,7 +40,7 @@ python kfold_example_mnist.py
  ```
 
 ## Observations 
----
+
  Most of the CPU is idle when a serial KFold is running. Our goal is to maximize the CPU utilization and decrease training time without having significant effect on the accuracy.
 
 The CPU utilization for running LetNet, Mobile-Net and VGG serially for cosine and warm schedulers.
