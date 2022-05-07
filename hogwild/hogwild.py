@@ -7,7 +7,9 @@ from .utils import MessageCode, send_message, ravel_model_params
 class Hogwild(Optimizer):
     def __init__(self, params, lr, n_push, n_pull, model):
         defaults = dict(lr=lr,)
-        self.accumulated_gradients = torch.zeros(ravel_model_params(model).size())
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+        self.accumulated_gradients = torch.zeros(ravel_model_params(model).size()).to(device)
         self.n_pull = n_pull
         self.n_push = n_push
 

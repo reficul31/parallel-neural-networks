@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR10
 from torchvision.transforms import Compose, ToTensor, Normalize
 from torch.optim.lr_scheduler import ReduceLROnPlateau
-from sklearn.metrics import classification_report, accuracy_score
+from sklearn.metrics import accuracy_score
 
 from models import AlexNet
 from hogwild import Hogwild, Server
@@ -25,7 +25,6 @@ transform = Compose([
     ])
 
 def evaluate(net, testloader):
-    classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
     net.eval()
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
    

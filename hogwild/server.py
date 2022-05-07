@@ -8,7 +8,9 @@ from .utils import MessageCode, send_message, ravel_model_params, unravel_model_
 class Worker(Thread):
     def __init__(self, model):
         self.model = model
-        self.m_parameter = torch.zeros(ravel_model_params(model).numel() + 2)
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+        self.m_parameter = torch.zeros(ravel_model_params(model).numel() + 2).to(device)
         super(Worker, self).__init__()
 
     def receive(self, message_code, parameter):
