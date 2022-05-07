@@ -10,7 +10,8 @@ class MessageCode(Enum):
     EvaluateParams = 3
 
 def ravel_model_params(model, grads=False):
-    m_parameter = torch.Tensor([0])
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    m_parameter = torch.Tensor([0]).to(device)
     for parameter in list(model.parameters()):
         if grads:
             m_parameter = torch.cat((m_parameter, parameter.grad.view(-1)))
@@ -27,6 +28,7 @@ def unravel_model_params(model, parameter_update):
         current_index += numel
 
 def send_message(message_code, payload, dst=0):
-    m_parameter = torch.Tensor([dist.get_rank(), message_code.value])
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    m_parameter = torch.Tensor([dist.get_rank(), message_code.value]).to(device)
     m_parameter = torch.cat((m_parameter, payload))
     dist.isend(tensor=m_parameter, dst=dst)
