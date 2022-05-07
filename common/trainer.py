@@ -4,10 +4,11 @@ import torch
 import numpy as np
 
 class Trainer(object):
-    def __init__(self, criterion, root_dir, batch_size):
+    def __init__(self, criterion, root_dir, batch_size, save_latest=True):
         self.criterion = criterion
         self.root_dir = root_dir
         self.batch_size = batch_size
+        self.save_latest = save_latest
     
     def __call__(self, fold, model, optimizer, scheduler, data_loader, epochs=100, save_checkpoint_frequency=20, print_frequency=15):
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -41,7 +42,7 @@ class Trainer(object):
                     'optimizer_state_dict': optimizer.state_dict(),
                     'scheduler_state_dict': scheduler.state_dict()
                 }, os.path.join(model_dir, "checkpoint_{}.tar".format(epoch)))
-            else:
+            elif self.save_latest:
                 torch.save({
                     'epoch': epoch,
                     'model_state_dict': model.state_dict(),
