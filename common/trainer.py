@@ -2,7 +2,7 @@ import os
 import time
 import torch
 import numpy as np
-import pytorch.distributed as dist
+import torch.distributed as dist
 
 class Trainer(object):
     def __init__(self, criterion, root_dir, batch_size, save_latest=True):
@@ -36,7 +36,7 @@ class Trainer(object):
                 log_loss.append(loss.item())
 
                 if batch_idx % print_frequency == 0:
-                    print("Epoch {} : Worker - {} ({:04d}/{:04d}) Loss = {:.4f}".format(epoch + 1, dist.get_rank(), batch_idx, int(batch_step_size), loss.item()))
+                    print("Epoch {} : Worker - {} ({:04d}/{:04d}) Loss = {:.4f}".format(epoch + 1, fold, batch_idx, int(batch_step_size), loss.item()))
             
             train_loss.append(np.mean(log_loss))
             print("Epoch {} done: Time = {}, Mean Loss = {}".format(epoch + 1, time.time() - start, train_loss[-1]))

@@ -3,7 +3,6 @@ import time
 import torch
 import numpy as np
 import pandas as pd
-import torch.distributed as dist
 
 from torch.multiprocessing import Process
 from torch.utils.data import DataLoader, DistributedSampler
@@ -70,7 +69,7 @@ class DistributedTrainer(object):
 
                 log_loss.append(loss.item())
                 if batch_idx % print_frequency == 0:
-                    print("Epoch {} : Worker - {} ({:04d}/{:04d}) Loss = {:.4f}".format(epoch + 1, dist.get_rank(), batch_idx, int(batch_step_size), loss.item()))
+                    print("Epoch {} : Worker - {} ({:04d}/{:04d}) Loss = {:.4f}".format(epoch + 1, rank, batch_idx, int(batch_step_size), loss.item()))
             
             times.append(time.time())
             train_loss.append(np.mean(log_loss))
