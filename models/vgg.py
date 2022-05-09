@@ -8,6 +8,10 @@ cfg = {
 }
 
 class VGG(nn.Module):
+    """
+    CNN archtecture VGG's implementation. This module is
+    used to create an instance of VGG.
+    """
     def __init__(self, vgg_name='VGG19'):
         super(VGG, self).__init__()
         self.features = self._make_layers(cfg[vgg_name])

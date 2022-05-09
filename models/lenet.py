@@ -4,6 +4,10 @@ import torch.nn.functional as F
 from torch.nn import Module, Conv2d, ReLU, MaxPool2d, Sequential, Linear, BatchNorm2d
 
 class LeNet(Module):
+    """
+    CNN archtecture LeNet's implementation. This module is
+    used to create an instance of LeNet.
+    """
     def __init__(self):
         super(LeNet, self).__init__()
         self.conv1 = Conv2d(3, 6, 5)
@@ -24,6 +28,10 @@ class LeNet(Module):
         return out
 
 class LeNet5(Module):
+    """
+    CNN archtecture LetNet5's implementation. This module is
+    used to create an instance of LeNet5.
+    """
     def __init__(self, num_classes=10):
         super(LeNet5, self).__init__()
         self.layer1 = Sequential(

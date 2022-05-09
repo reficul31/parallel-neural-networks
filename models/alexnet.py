@@ -1,6 +1,10 @@
 from torch.nn import Module, Sequential, Conv2d, ReLU, MaxPool2d, Linear
 
 class AlexNet(Module):
+    """
+    CNN archtecture AlexNet's implementation. This module is
+    used to create an instance of AlexNet.
+    """
     def __init__(self, num_classes=10):
         super(AlexNet, self).__init__()
         self.features = Sequential(

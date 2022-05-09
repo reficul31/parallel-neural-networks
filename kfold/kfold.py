@@ -6,12 +6,37 @@ from .jobscheduler import JobScheduler
 from .waiter import Waiter
 
 class AsyncKFold(object):
+    """
+    AsyncKFold object is used to perform K Fold cross validation on a list of models and schedulers
+    on a given dataset.
+    """
     def __init__(self, kfolds, train_dataset, root_dir, criterion, batch_size, parallelize=True):
+        """
+        Initialize AsyncKFold object.
+
+        @param kfolds - Number of folds to be used.
+        @param train_dataset - object containing the training data
+        @param root_dir - String specifying the absolute path of the root directory
+        @param criterion - object of the criterion to be used while training
+        @param batch_size - Batch size for training
+        @param parallelize - Boolean specifying whether job should be run sequentially or parallely. If True job is executed parallely else sequentially.
+        """
+        
         self.waiter = Waiter(train_dataset, criterion, batch_size, kfolds)
         self.root_dir = root_dir
         self.parallelize = parallelize
 
     def __call__(self, models, schedulers, get_optimizer, trainer_params):
+        """
+        Call function for AsyncKFold object. Creates directories for differenr models and their schedulers.
+        Instantiates Job scheduler and calculates the total execution time.
+
+        @param models: List of model objects to be used
+        @param schedulers - List of strings specifying the names of the schedulers
+        @param get_optimizer - function that takes model object as input and returns the optimizer to be used.
+        @param trainer_params - Dictionary of key value pairs specifying the epochs,save checkpoint frequency and print frequency.
+        """
+
         for net in models:
             name = net.__name__
             if not os.path.exists(os.path.join(self.root_dir, name)):
