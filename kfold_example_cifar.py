@@ -9,14 +9,17 @@ from torchvision.transforms import ToTensor, Compose, RandomCrop, RandomHorizont
 from models import MobileNet, LeNet, VGG
 from kfold import AsyncKFold
 
+batch_size = 32
 def get_optimizer(model):
     return Adam(model.parameters(), 1e-3)
 
-if __name__ == '__main__':
-    set_start_method('spawn', force=True)
-    batch_size = 32
-    root_dir = os.path.dirname(os.path.abspath(__file__))
+def get_models():
+    return [MobileNet, LeNet, VGG]
 
+def get_schedulers():
+    return ['cosine', 'warm']
+
+def get_dataset():
     transform_train = Compose([
         RandomCrop(32, padding=4),
         RandomHorizontalFlip(),
@@ -24,7 +27,18 @@ if __name__ == '__main__':
         Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
     ])
     train_dataset = CIFAR10(root="./data", train=True, download=True, transform=transform_train)
+    return train_dataset
 
-    trainer_params = dict({"epochs": 10})
-    kfold = AsyncKFold(3, train_dataset, root_dir, CrossEntropyLoss(), batch_size)
-    kfold([MobileNet, LeNet, VGG], ['cosine', 'warm'], get_optimizer, trainer_params)
+def get_criterion():
+    return CrossEntropyLoss()
+
+def get_trainer_params():
+    return {"epochs": 2, "save_checkpoint_frequency": 20, "print_frequency": 15}
+
+if __name__ == '__main__':
+    set_start_method('spawn', force=True)
+    root_dir = os.path.dirname(os.path.abspath(__file__))
+
+    trainer_params = get_trainer_params()
+    kfold = AsyncKFold(2, get_dataset(), root_dir, get_criterion(), batch_size)
+    kfold(get_models(), get_schedulers(), get_optimizer, trainer_params)

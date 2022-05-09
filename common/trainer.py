@@ -2,6 +2,7 @@ import os
 import time
 import torch
 import numpy as np
+import pytorch.distributed as dist
 
 class Trainer(object):
     def __init__(self, criterion, root_dir, batch_size, save_latest=True):
@@ -15,8 +16,8 @@ class Trainer(object):
         train_loss = []
 
         model_dir = os.path.join(self.root_dir, str(fold))
+        model.train()
         for epoch in range(epochs):
-            model.train()
             batch_step_size = len(data_loader.dataset) / self.batch_size
             
             log_loss = []
@@ -33,8 +34,12 @@ class Trainer(object):
                     scheduler.step()
 
                 log_loss.append(loss.item())
+
+                if batch_idx % print_frequency == 0:
+                    print("Epoch {} : Worker - {} ({:04d}/{:04d}) Loss = {:.4f}".format(epoch + 1, dist.get_rank(), batch_idx, int(batch_step_size), loss.item()))
             
             train_loss.append(np.mean(log_loss))
+            print("Epoch {} done: Time = {}, Mean Loss = {}".format(epoch + 1, time.time() - start, train_loss[-1]))
             if epoch % save_checkpoint_frequency == 0:
                 torch.save({
                     'epoch': epoch,
