@@ -3,12 +3,31 @@ import torch
 import numpy as np
 
 class Tester(object):
+    """
+    Tester object is used to perform testing 
+    on the dataset provided in the arguments
+    """
     def __init__(self, data_loader, root_dir, num_classes = 10):
+        """
+        Initialize the Tester object
+
+        @param data_loader - Data loader for the test dataset
+        @param root_dir - Directory to save the results
+        @param num_classes - Number of classes in the dataset
+        """
         self.data_loader = data_loader
         self.root_dir = root_dir
         self.num_classes = num_classes
     
     def __call__(self, fold, model):
+        """
+        Call function for the tester object. Saves the results 
+        of the test in the form of a confusion matrix in the
+        root_dir passed in the initilization of the caller.
+
+        @param fold - Current fold that is being tested
+        @param model - The model to test with the dataset
+        """
         model_dir = os.path.join(self.root_dir, str(fold))
         if not os.path.exists(model_dir):
             raise Exception("Directory does not exist:", model_dir)
