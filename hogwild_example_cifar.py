@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import torch
 import pandas as pd
 import torch.nn.functional as F
@@ -68,7 +69,10 @@ if __name__ == '__main__':
     net.train()
     for epoch in range(epochs):
         print("Training for epoch {}".format(epoch))
-        for i, data in enumerate(trainloader, 0):
+        batch_step_size = len(trainloader.dataset) / batch_size
+
+        start = time.time()
+        for batch_idx, data in enumerate(trainloader, 0):
             inputs, labels = data
             inputs, labels = inputs.to(device), labels.to(device)
 
@@ -78,21 +82,24 @@ if __name__ == '__main__':
             loss.backward()
             optimizer.step()
 
-            _, predicted = torch.max(outputs, 1)
-            accuracy = accuracy_score(predicted.cpu().detach().numpy(), labels.cpu().detach().numpy())
+            if batch_idx % 20:
+                print("Epoch {} : Worker - {} ({:04d}/{:04d}) Loss = {:.4f}".format(epoch + 1, dist.get_rank(), batch_idx, int(batch_step_size), loss.item()))
+                _, predicted = torch.max(outputs, 1)
+                accuracy = accuracy_score(predicted.cpu().detach().numpy(), labels.cpu().detach().numpy())
 
-            log_obj = {
-                'timestamp': datetime.now(),
-                'iteration': i,
-                'training_loss': loss.item(),
-                'training_accuracy': accuracy,
-            }
-            
-            log_obj['test_loss'], log_obj['test_accuracy']= evaluate(net, testloader)
-            logs.append(log_obj)
+                log_obj = {
+                    'timestamp': datetime.now(),
+                    'iteration': batch_idx,
+                    'training_loss': loss.item(),
+                    'training_accuracy': accuracy,
+                }
+                
+                log_obj['test_loss'], log_obj['test_accuracy']= evaluate(net, testloader)
+                logs.append(log_obj)
                 
         val_loss, val_accuracy = evaluate(net, testloader, verbose=True)
         scheduler.step(val_loss)
+        print("Epoch {} done: Time = {}, Val Loss = {}, Val Accuracy = {}".format(epoch + 1, time.time() - start, val_loss, val_accuracy))
 
     df = pd.DataFrame(logs)
     print(df)
