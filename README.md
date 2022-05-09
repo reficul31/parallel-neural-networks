@@ -12,29 +12,103 @@ In this repository we have included AsyncKFold and Asynschornous Stochastic Grad
 
 <u>Directory Structure</u> <br>
 
-asset - contains all the images <br>
-common - trainer,tester and distributed module <br>
-Hogwild - server, Hogwild,utils modules for Hogwild implementation<br>
-Kfold - Kfold,job scheduler,waiter and utils module <br>
-models - AlexNet, LeNet,MobileNet, VGG class modules.<br>
+```
 
+parallel-neural-networks
+|
+└───asset - Folder containing assets for the README for the project
+|
+└───common - Common module containing common code snippets
+|
+└───hogwild - Hogwild module containing code for Hogwild optimizer
+|
+└───kfold - K-Fold module containing code for AsyncKfold API
+|
+└───models - Module containing the different neural networks
+|
+└───distributed_example_cifar.py - Example for running distributed training on CIFAR dataset
+|
+└───distributed_example_mnist.py - Example for running distributed training on MNIST dataset
+|
+└───hogwild_example_cifar.py - Example for hogwild optimizer training on CIFAR dataset
+|
+└───kfold_example_cifar.py - Example for running parallel K-fold training on CIFAR dataset
+|
+└───kfold_example_mnist.py - Example for running parallel K-fold training on MNIST dataset
+|
+└───requirements.txt - Requirements for the project
+```
 
 
 ## <u>Executing the code</u>
+- ### Running Asynchronous KFold
+To the run the Asynchronous K-Fold API, we need to define the following functions which give the API information on which models, schedulers, optimizers, etc to run K-Fold cross validation on.
 
 ```
+def get_optimizer(model):
+    return Adam(model.parameters(), 1e-3)
 
+def get_models():
+    return [MobileNet, LeNet, VGG]
+
+def get_schedulers():
+    return ['cosine', 'warm']
+
+def get_dataset():
+    train_dataset = CIFAR10(root="./data", train=True, download=True)
+    return train_dataset
+
+def get_criterion():
+    return CrossEntropyLoss()
+
+def get_trainer_params():
+    return {"epochs": 2, "save_checkpoint_frequency": 20, "print_frequency": 15}
+```
+Once we have defined the above functions, we can simply call the API for K-Fold Cross Validtion in the following manner:
+```
+trainer_params = get_trainer_params()
+kfold = AsyncKFold(2, get_dataset(), root_dir, get_criterion(), batch_size)
+kfold(get_models(), get_schedulers(), get_optimizer, trainer_params)
+```
+- ### Running Distributed Training
+To the run the Asynchronous K-Fold API, we need to define the following functions which give the API information on which models, schedulers, optimizers, etc to run K-Fold cross validation on.
+
+```
+def get_datasets():
+    train_dataset = CIFAR10(root="./data", train=True)
+    test_dataset = CIFAR10(root="./data", train=False)
+    return train_dataset, test_dataset
+
+def get_model():
+    return VGG()
+
+def get_optimizer(model):
+    return Adam(model.parameters(), 1e-3)
+
+def get_scheduler(optimizer):
+    return MultiStepLR(optimizer, milestones=[30, 60, 90], gamma=0.1)
+
+def get_criterion():
+    return CrossEntropyLoss()
+```
+Once we have defined the above functions, we can simply call the API for Distributed training in the following manner:
+```
+trainer = DistributedTrainer(num_processes, get_criterion(), root_dir, batch_size)
+trainer(model, train_dataset, optimizer, scheduler, epochs=epochs)
+
+tester = DistributedTester(DataLoader(test_dataset, batch_size=batch_size, shuffle=True), root_dir)
+tester(model)
 ```
 
 ## Testing on example code
 
-- ### Testing Asynchornous KFold on MNIST dataset
+- ### Testing Asynchronous KFold on MNIST dataset
 
 ```
 python kfold_example_mnist.py 
 ```
 
- - ### Testing Asynchornous KFold on CIAFR dataset
+ - ### Testing Asynchronous KFold on CIFAR dataset
 ```
  python kfold_example_cifar.py
  ```
