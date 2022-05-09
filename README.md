@@ -8,7 +8,15 @@ We present a parallelization framework in this project that allows developers to
 
 ## <u>Description of Repository</u>
 
-In this repository we have included AsyncKFold and Asynschornous Stochastic Gradient Descent using HOGWILD method in pytorch. 
+In this repository we have included AsyncKFold and Asynschornous Stochastic Gradient Descent using HOGWILD method in pytorch.   
+
+<u>Directory Structure</u> <br>
+
+asset - contains all the images <br>
+common - trainer,tester and distributed module <br>
+Hogwild - server, Hogwild,utils modules for Hogwild implementation<br>
+Kfold - Kfold,job scheduler,waiter and utils module <br>
+models - AlexNet, LeNet,MobileNet, VGG class modules.<br>
 
 
 
@@ -42,7 +50,7 @@ python kfold_example_mnist.py
 ![Kfold Architecture](./asset/KFold-Architecture.png)
 
 <br>
-<hr>
+
 
 ## <u>Observations For Distributed Stochastic Gradient Descent</u>
 
@@ -70,7 +78,7 @@ The CPU usage diagram above shows how our proposed method efficiently uses the r
 From the graph above, we can see that our model performs almost at the same level as the vanilla SGD model. Therefore, we can see that we were able to improve the training time without any trade off in convergence or accuracy.
 
 <br>
-<hr>
+
 
 ## <u>Observations For Asynchronous KFold Cross Validation</u>
 
@@ -101,7 +109,7 @@ From the CPU utilization graph on the right, we can see that the serial executio
 In the graphs given below, we compare the speedup of the K-Fold cross validation on the different models. We can see that on LeNet and MobileNet the speedup was significantly higher than that in VGG. This might be due to the size difference in the models.
 
 <br>
-<hr>
+
 
 ### <u>Class Accuracies</u>
 <img src="./asset/class-accuracies.png" width="800px" height ="650px"  >
